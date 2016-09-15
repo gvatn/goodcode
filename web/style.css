@@ -42,4 +42,15 @@ h1 {
 	font-size: 125%;
 	line-height: 150%;
 	color: #d9d8ff;
+	padding-bottom: 12px;
+}
+
+.contact-link {
+	display: inline-block;
+	padding: 6px 16px 6px 11px;
+	border-radius: 6px;
+	background-color: #ffdd54;
+	color: #000;
+	font-weight: bold;
+	text-decoration: none;
 }

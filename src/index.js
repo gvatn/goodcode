@@ -60,7 +60,7 @@ function panelTextFontLoaded(font, texture) {
     map: texture,
     side: THREE.DoubleSide,
     transparent: true,
-    color: 'rgb(50, 0, 33)',
+    color: 'rgb(33, 0, 33)',
     opacity: 0.9
   }));
 

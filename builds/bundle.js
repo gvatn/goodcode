@@ -86,7 +86,7 @@
 	  texture.anisotropy = maxAni;
 
 	  var textContent = [
-	    "Welcome to goodcode labs!",
+	    "Welcome to goodcode!",
 	    "",
 	    "Currently investigating new technologies to form basis of",
 	    "further development.",
@@ -106,7 +106,7 @@
 	    map: texture,
 	    side: THREE.DoubleSide,
 	    transparent: true,
-	    color: 'rgb(50, 0, 33)',
+	    color: 'rgb(33, 0, 33)',
 	    opacity: 0.9
 	  }));
 
@@ -179,21 +179,30 @@
 	    camPolyTween.start();
 	    camPolyTween.onComplete(function () {
 	        // move text to left corner
-	        var textScaleCorner = new TWEEN.Tween(textMesh1.scale).to({
-	            x: 0.4,
-	            y: 0.4,
-	            z: 0.4
+	        var textScaleCorner = new TWEEN.Tween(headingMesh.scale).to({
+	            x: 16,
+	            y: 16,
+	            z: 16
 	        }, 2000);
-	        textScaleCorner.easing(TWEEN.Easing.Sinusoidal.Out)
+	        textScaleCorner.easing(TWEEN.Easing.Sinusoidal.InOut)
 	        textScaleCorner.start();
-	        var textLeftCorner = new TWEEN.Tween(textMesh1.position).to({
-	            x: -225,
-	            y: 40,
+	        var textLeftCorner = new TWEEN.Tween(headingMesh.position).to({
+	            x: -170,
+	            y: 125,
 	            z: 30
 	        }, 2000);
+	        // Also update opacity on the way
+	        var opacityTween = new TWEEN.Tween({opacity: 0.5}).to({opacity: 1.0}, 1000);
+	        opacityTween.onUpdate(function() {
+	          headingMesh.material.opacity = this.opacity;
+	        });
+	        setTimeout(function() {
+	          opacityTween.start();
+	        }, 2750);
+
 	        textLeftCorner.start();
 	        // Rotate text
-	        var textRotateTween = new TWEEN.Tween(textMesh1.rotation).to({ x: "-" + (Math.PI / 15) }, 2500);
+	        var textRotateTween = new TWEEN.Tween(headingMesh.rotation).to({ x: "-" + (Math.PI / 15) }, 2500);
 	        textRotateTween.easing(TWEEN.Easing.Sinusoidal.Out).start();
 
 	        // Increase field of view
@@ -223,7 +232,7 @@
 	        textPanelUpTween.start();
 	        textPanelUpTween.onComplete(function () {
 	            // rotate panel into view and bring it a little forward
-	            var textPanelRotateTween = new TWEEN.Tween(textPanelMesh.rotation).to({ x: Math.PI / 2.35 }, 2500);
+	            var textPanelRotateTween = new TWEEN.Tween(textPanelMesh.rotation).to({ x: Math.PI / 2.35 }, 1500);
 	            textPanelRotateTween.easing(TWEEN.Easing.Bounce.Out);
 	            //var textForwardTween = new TWEEN.Tween(textPanelMesh.position).to({ z: 55 }, 1500);
 	            textPanelRotateTween.start();
@@ -234,7 +243,7 @@
 
 	            // "Move water down" by moving rest up
 	            var camFromWater = new TWEEN.Tween(camera.position).to({ y: "+30" }, 1000);
-	            var headingFromWater = new TWEEN.Tween(textMesh1.position).to({ y: "+30" }, 1000);
+	            var headingFromWater = new TWEEN.Tween(headingMesh.position).to({ y: "+30" }, 1000);
 	            var panelFromWater = new TWEEN.Tween(textPanelMesh.position).to({ y: "+30", z: 50 }, 1500);
 	            camFromWater.easing(TWEEN.Easing.Sinusoidal.Out);
 	            headingFromWater.easing(TWEEN.Easing.Sinusoidal.Out);
@@ -260,6 +269,52 @@
 	    textPanelMesh = new THREE.Mesh(geometry, material);
 	    textPanelMesh.position.y = -15;
 	    scene.add(textPanelMesh);
+	}
+
+	var headingMesh;
+	function initHeadingMesh() {
+	  var loader = new THREE.JSONLoader();
+	  loader.load('./meshes/goodcode.json', function(geometry) {
+	    //debugger;
+	    var material = new THREE.MeshBasicMaterial({
+	        color: 0xcfcfff,
+	        side: THREE.DoubleSide
+	    });
+	    var material2 = new THREE.MeshPhongMaterial({
+	      color: 0xffffff,
+	      shading: THREE.FlatShading,
+	      transparent: true,
+	      opacity: 0.5
+	    });
+	    geometry.computeBoundingBox();
+	    geometry.computeVertexNormals();
+	    textGeo = geometry;
+	    var triangleAreaHeuristics = 0.1 * (height * size);
+	        for (var i = 0; i < textGeo.faces.length; i++) {
+	            var face = textGeo.faces[i];
+	            if (face.materialIndex == 1) {
+	                for (var j = 0; j < face.vertexNormals.length; j++) {
+	                    face.vertexNormals[j].z = 0;
+	                    face.vertexNormals[j].normalize();
+	                }
+	                var va = textGeo.vertices[face.a];
+	                var vb = textGeo.vertices[face.b];
+	                var vc = textGeo.vertices[face.c];
+
+	                var s = THREE.GeometryUtils.triangleArea(va, vb, vc);
+	                if (s > triangleAreaHeuristics) {
+	                    for (var j = 0; j < face.vertexNormals.length; j++) {
+	                        face.vertexNormals[j].copy(face.normal);
+	                    }
+	                }
+	            }
+	        }
+	    headingMesh = new THREE.Mesh(geometry, material2);
+	    headingMesh.position.y = 20;
+	    headingMesh.position.x = 35;
+	    headingMesh.scale.set(50, 50, 50);
+	    scene.add(headingMesh);
+	  });
 	}
 
 	function init() {
@@ -307,11 +362,13 @@
 
 
 	    initText();
-	    initHeading();
+	    //initHeading();
 
 	    initWater();
 
 	    initTextPanel();
+
+	    initHeadingMesh();
 
 	    initTweens();
 

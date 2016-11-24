@@ -122,6 +122,14 @@ function initTweens() {
         z: [240, 300]
     };
     var camPolyTween = new TWEEN.Tween(camera.position).to(camPoly, 6000);
+
+    // Animate pointLight
+    var lightTween = new TWEEN.Tween(pointLight.position).to({x: 150}, 4000)
+    var lightRightToLeftTween = new TWEEN.Tween(pointLight.position).to({x: -150}, 3000)
+    lightRightToLeftTween.easing(TWEEN.Easing.Sinusoidal.InOut);
+    lightTween.chain(lightRightToLeftTween);
+    lightTween.start();
+
     setTimeout(function() {
       var bounceOpacity = new TWEEN.Tween({o: 0.5}).to({o: 1.0}, 1000);
       bounceOpacity.easing(TWEEN.Easing.Bounce.Out);
@@ -129,6 +137,8 @@ function initTweens() {
         headingMesh.material.opacity = this.o;
       });
       bounceOpacity.start();
+      // Move point light on text along the x-axis
+
     }, 4500);
     camPolyTween.onUpdate(function () {
         camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -347,7 +357,7 @@ function init() {
 var pointLight;
 function initText() {
     pointLight = new THREE.PointLight(0xcc66cc, 1.5);
-    pointLight.position.set(0, 100, 90);
+    pointLight.position.set(-150, 100, 90);
     scene.add(pointLight);
 }
 

@@ -121,7 +121,15 @@ function initTweens() {
         y: [260, 100],
         z: [240, 300]
     };
-    var camPolyTween = new TWEEN.Tween(camera.position).to(camPoly, 5000);
+    var camPolyTween = new TWEEN.Tween(camera.position).to(camPoly, 6000);
+    setTimeout(function() {
+      var bounceOpacity = new TWEEN.Tween({o: 0.5}).to({o: 1.0}, 1000);
+      bounceOpacity.easing(TWEEN.Easing.Bounce.Out);
+      bounceOpacity.onUpdate(function() {
+        headingMesh.material.opacity = this.o;
+      });
+      bounceOpacity.start();
+    }, 4500);
     camPolyTween.onUpdate(function () {
         camera.lookAt(new THREE.Vector3(0, 0, 0));
     });
@@ -130,6 +138,8 @@ function initTweens() {
         // Slow down towards the end
         return (k < 0.50) ? k * 1.20 : Math.sin((k - 0.50) * Math.PI) * 0.40 + 0.60;
     });
+
+
     camPolyTween.start();
     camPolyTween.onComplete(function () {
         // move text to left corner
@@ -139,45 +149,42 @@ function initTweens() {
             z: 16
         }, 2000);
         textScaleCorner.easing(TWEEN.Easing.Sinusoidal.InOut)
-        textScaleCorner.start();
         var textLeftCorner = new TWEEN.Tween(headingMesh.position).to({
             x: -170,
             y: 125,
             z: 30
         }, 2000);
-        // Also update opacity on the way
-        var opacityTween = new TWEEN.Tween({opacity: 0.5}).to({opacity: 1.0}, 1000);
-        opacityTween.onUpdate(function() {
-          headingMesh.material.opacity = this.opacity;
-        });
-        setTimeout(function() {
-          opacityTween.start();
-        }, 2750);
+        textLeftCorner.easing(TWEEN.Easing.Sinusoidal.InOut)
 
+        textScaleCorner.start();
         textLeftCorner.start();
+
+        // And move light along header
+        var pointLightTween = new TWEEN.Tween(pointLight.position).to({x: -50}, 1000).start();
+
         // Rotate text
         var textRotateTween = new TWEEN.Tween(headingMesh.rotation).to({ x: "-" + (Math.PI / 15) }, 2500);
         textRotateTween.easing(TWEEN.Easing.Sinusoidal.Out).start();
 
         // Increase field of view
         var fovTween = new TWEEN.Tween({
-            x: camera.position.x,
-            y: camera.position.y,
-            z: camera.position.z,
-            w: camera.fov,
-            u: 0
+          x: camera.position.x,
+          y: camera.position.y,
+          z: camera.position.z,
+          w: camera.fov,
+          u: 0
         }).to({
-            x: camera.position.x - 10,
-            y: camera.position.y + 50,
-            z: camera.position.z + 40,
-            w: 50,
-            u: 30
+          x: camera.position.x - 10,
+          y: camera.position.y + 50,
+          z: camera.position.z + 40,
+          w: 50,
+          u: 30
         }, 2000);
         fovTween.onUpdate(function () {
-            camera.position.set(this.x, this.y, this.z);
-            camera.fov = this.w;
-            camera.lookAt(new THREE.Vector3(0, this.u, 0));
-            camera.updateProjectionMatrix();
+          camera.position.set(this.x, this.y, this.z);
+          camera.fov = this.w;
+          camera.lookAt(new THREE.Vector3(0, this.u, 0));
+          camera.updateProjectionMatrix();
         });
         fovTween.start();
 
@@ -185,36 +192,38 @@ function initTweens() {
         var textPanelUpTween = new TWEEN.Tween(textPanelMesh.position).to({ y: 0 }, 2000);
         textPanelUpTween.start();
         textPanelUpTween.onComplete(function () {
-            // rotate panel into view and bring it a little forward
-            var textPanelRotateTween = new TWEEN.Tween(textPanelMesh.rotation).to({ x: Math.PI / 2.35 }, 1500);
-            textPanelRotateTween.easing(TWEEN.Easing.Bounce.Out);
-            //var textForwardTween = new TWEEN.Tween(textPanelMesh.position).to({ z: 55 }, 1500);
-            textPanelRotateTween.start();
-            textPanelRotateTween.onComplete(function() {
-                initPanelText();
-            });
-            //textForwardTween.start();
+          // rotate panel into view and bring it a little forward
+          var textPanelRotateTween = new TWEEN.Tween(textPanelMesh.rotation).to({ x: Math.PI / 2.35 }, 1500);
+          textPanelRotateTween.easing(TWEEN.Easing.Bounce.Out);
+          //var textForwardTween = new TWEEN.Tween(textPanelMesh.position).to({ z: 55 }, 1500);
+          textPanelRotateTween.start();
+          textPanelRotateTween.onComplete(function() {
+              initPanelText();
+          });
+          //textForwardTween.start();
 
-            // "Move water down" by moving rest up
-            var camFromWater = new TWEEN.Tween(camera.position).to({ y: "+30" }, 1000);
-            var headingFromWater = new TWEEN.Tween(headingMesh.position).to({ y: "+30" }, 1000);
-            var panelFromWater = new TWEEN.Tween(textPanelMesh.position).to({ y: "+30", z: 50 }, 1500);
-            camFromWater.easing(TWEEN.Easing.Sinusoidal.Out);
-            headingFromWater.easing(TWEEN.Easing.Sinusoidal.Out);
-            panelFromWater.easing(TWEEN.Easing.Sinusoidal.Out);
-            camFromWater.start();
-            headingFromWater.start();
-            camFromWater.start();
-            panelFromWater.start();
+          // "Move water down" by moving rest up
+          var camFromWater = new TWEEN.Tween(camera.position).to({ y: "+30" }, 1000);
+          var headingFromWater = new TWEEN.Tween(headingMesh.position).to({ y: "+30" }, 1000);
+          var panelFromWater = new TWEEN.Tween(textPanelMesh.position).to({ y: "+30", z: 50 }, 1500);
+          camFromWater.easing(TWEEN.Easing.Sinusoidal.Out);
+          headingFromWater.easing(TWEEN.Easing.Sinusoidal.Out);
+          panelFromWater.easing(TWEEN.Easing.Sinusoidal.Out);
+          camFromWater.start();
+          headingFromWater.start();
+          camFromWater.start();
+          panelFromWater.start();
 
         });
-    });
+        });
+
+
 }
 
 
 var textPanelMesh;
 function initTextPanel() {
-    var geometry = new THREE.PlaneGeometry(500, 250, 32);
+    var geometry = new THREE.PlaneGeometry(500, 255, 32);
     geometry.rotateX(Math.PI / 2);
     var material = new THREE.MeshBasicMaterial({
         color: 0xcfcfff,
@@ -266,7 +275,7 @@ function initHeadingMesh() {
     headingMesh = new THREE.Mesh(geometry, material2);
     headingMesh.position.y = 20;
     headingMesh.position.x = 35;
-    headingMesh.scale.set(50, 50, 50);
+    headingMesh.scale.set(48, 48, 48);
     scene.add(headingMesh);
   });
 }
@@ -335,8 +344,9 @@ function init() {
 }
 
 // todo: refactor from bottom into this
+var pointLight;
 function initText() {
-    var pointLight = new THREE.PointLight(0xcc66cc, 1.5);
+    pointLight = new THREE.PointLight(0xcc66cc, 1.5);
     pointLight.position.set(0, 100, 90);
     scene.add(pointLight);
 }

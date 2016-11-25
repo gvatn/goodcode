@@ -1,3 +1,5 @@
+const webpack = require('webpack');
+
 module.exports = {
     entry:  './src',
     output: {
@@ -23,5 +25,15 @@ module.exports = {
           loader: 'html',
         }
       ],
-    }
+    },
+    plugins: [
+        new webpack.optimize.UglifyJsPlugin({
+            compress: {
+                warnings: false,
+            },
+            output: {
+                comments: false,
+            },
+        }),
+    ]
 };

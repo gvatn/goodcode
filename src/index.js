@@ -15,7 +15,6 @@ var GeometryUtils = require('./js/utils/GeometryUtils.js')
 var GPUComputationRenderer = require('./js/GPUComputationRenderer.js')
 var TWEEN = require('../libs/tween.js')
 
-var createOrbitViewer = require('three-orbit-viewer')(THREE)
 var createText = require('./create-text')
 var SDFShader = require('../shaders/sdf')
 
@@ -42,16 +41,18 @@ function panelTextFontLoaded(font, texture) {
   var textContent = [
     "Welcome to goodcode!",
     "",
-    "Currently investigating new technologies to form basis of",
-    "further development.",
+    "There will probably be some experiments here.",
     "",
-    "email: gudmund@goodcode.no"
+    "I'm a programmer interested in building great user experiences",
+    "with accelerated graphics, and a solid foundation on the back end.",
+    "",
+    "You can contact me at: gudmund@goodcode.no"
   ].join("\n");
 
   var geom = createText({
     text: textContent,
     font: font,
-    width: 1500,
+    width: 1800,
     flipY: true,
     lineHeight: 50
   });
@@ -66,10 +67,10 @@ function panelTextFontLoaded(font, texture) {
 
   var layout = geom.layout;
   var text = new THREE.Mesh(geom, panelTextMaterial);
-  text.scale.set(0.2, 0.2, 0.2);
+  text.scale.set(0.18, 0.18, 0.18);
   // Center horizontally
-  text.position.x = -205;
-  text.position.y = 82;
+  text.position.x = -210;
+  text.position.y = 70;
   text.position.z = 70;
   text.rotation.x = (Math.PI / 2) + (Math.PI / 2.35);
 
@@ -124,22 +125,27 @@ function initTweens() {
     var camPolyTween = new TWEEN.Tween(camera.position).to(camPoly, 6000);
 
     // Animate pointLight
-    var lightTween = new TWEEN.Tween(pointLight.position).to({x: 150}, 4000)
-    var lightRightToLeftTween = new TWEEN.Tween(pointLight.position).to({x: -150}, 3000)
+    var lightTween = new TWEEN.Tween(pointLight.position).to({x: 150}, 4200)
+    var lightRightToLeftTween = new TWEEN.Tween(pointLight.position).to({x: -150}, 4000)
     lightRightToLeftTween.easing(TWEEN.Easing.Sinusoidal.InOut);
     lightTween.chain(lightRightToLeftTween);
     lightTween.start();
 
     setTimeout(function() {
+      var fadeOut = new TWEEN.Tween({o: 0.5}).to({o: [0.2, 0.5]}, 4000);
+      fadeOut.onUpdate(function() {
+        headingMesh.material.opacity = this.o;
+      });
       var bounceOpacity = new TWEEN.Tween({o: 0.5}).to({o: 1.0}, 1000);
       bounceOpacity.easing(TWEEN.Easing.Bounce.Out);
       bounceOpacity.onUpdate(function() {
         headingMesh.material.opacity = this.o;
       });
-      bounceOpacity.start();
+      fadeOut.chain(bounceOpacity);
+      fadeOut.start();
       // Move point light on text along the x-axis
 
-    }, 4500);
+    }, 500);
     camPolyTween.onUpdate(function () {
         camera.lookAt(new THREE.Vector3(0, 0, 0));
     });
@@ -151,7 +157,8 @@ function initTweens() {
 
 
     camPolyTween.start();
-    camPolyTween.onComplete(function () {
+    camPolyTween.onComplete(function() {
+      setTimeout(function () {
         // move text to left corner
         var textScaleCorner = new TWEEN.Tween(headingMesh.scale).to({
             x: 16,
@@ -160,8 +167,8 @@ function initTweens() {
         }, 2000);
         textScaleCorner.easing(TWEEN.Easing.Sinusoidal.InOut)
         var textLeftCorner = new TWEEN.Tween(headingMesh.position).to({
-            x: -170,
-            y: 125,
+            x: -165,
+            y: 128,
             z: 30
         }, 2000);
         textLeftCorner.easing(TWEEN.Easing.Sinusoidal.InOut)
@@ -169,8 +176,20 @@ function initTweens() {
         textScaleCorner.start();
         textLeftCorner.start();
 
-        // And move light along header
-        var pointLightTween = new TWEEN.Tween(pointLight.position).to({x: -50}, 1000).start();
+        // Rotate text while moving
+        var moveRotate = new TWEEN.Tween(headingMesh.rotation).to({
+          y: [Math.PI / 20, 0]
+        }, 2000);
+        moveRotate.interpolation(TWEEN.Interpolation.CatmullRom);
+        moveRotate.easing(TWEEN.Easing.Sinusoidal.InOut)
+        moveRotate.start();
+
+        // Fade out while moving
+        var moveFadeOut = new TWEEN.Tween({o: 1.0}).to({o: 0.05}, 1500);
+        moveFadeOut.onUpdate(function() {
+          headingMesh.material.opacity = this.o;
+        });
+        moveFadeOut.start();
 
         // Rotate text
         var textRotateTween = new TWEEN.Tween(headingMesh.rotation).to({ x: "-" + (Math.PI / 15) }, 2500);
@@ -209,6 +228,22 @@ function initTweens() {
           textPanelRotateTween.start();
           textPanelRotateTween.onComplete(function() {
               initPanelText();
+              setTimeout(function() {
+                var turnOffHeading = new TWEEN.Tween({o: 0.3}).to({o: [0.4, 0.2, 0.5, 0.3]}, 100);
+                turnOffHeading.easing(TWEEN.Easing.Bounce.Out);
+                turnOffHeading.onUpdate(function() {
+                  headingMesh.material.opacity = this.o;
+                });
+                turnOffHeading.interpolation(TWEEN.Interpolation.CatmullRom);
+
+                var turnOnHeading = new TWEEN.Tween({o: 0.3}).to({o: 1.0}, 250);
+                turnOnHeading.easing(TWEEN.Easing.Bounce.Out);
+                turnOnHeading.onUpdate(function() {
+                  headingMesh.material.opacity = this.o;
+                });
+                turnOffHeading.chain(turnOnHeading);
+                turnOffHeading.start();
+              }, 1200);
           });
           //textForwardTween.start();
 
@@ -225,7 +260,10 @@ function initTweens() {
           panelFromWater.start();
 
         });
-        });
+      }, 600);
+    });
+
+
 
 
 }

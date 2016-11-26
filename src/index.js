@@ -41,7 +41,7 @@ function panelTextFontLoaded(font, texture) {
   var textContent = [
     "Welcome to goodcode!",
     "",
-    "There will probably be some experiments here.",
+    "This is the playground of Gudmund Vatn.",
     "",
     "I'm a programmer interested in building great user experiences",
     "with accelerated graphics, and a solid foundation on the back end.",
@@ -146,6 +146,7 @@ function initTweens() {
       // Move point light on text along the x-axis
 
     }, 500);
+
     camPolyTween.onUpdate(function () {
         camera.lookAt(new THREE.Vector3(0, 0, 0));
     });
@@ -157,6 +158,14 @@ function initTweens() {
 
 
     camPolyTween.start();
+
+    setTimeout(function() {
+      // Touch heading text in water before going up
+      var touchWater = new TWEEN.Tween(headingMesh.position).to({y: 0, z: 0}, 2500);
+      touchWater.easing(TWEEN.Easing.Sinusoidal.InOut);
+      touchWater.start();
+    }, 3500);
+
     camPolyTween.onComplete(function() {
       setTimeout(function () {
         // move text to left corner
@@ -218,7 +227,7 @@ function initTweens() {
         fovTween.start();
 
         // Bring textPanel up from water
-        var textPanelUpTween = new TWEEN.Tween(textPanelMesh.position).to({ y: 0 }, 2000);
+        var textPanelUpTween = new TWEEN.Tween(textPanelMesh.position).to({ y: 0 }, 3500);
         textPanelUpTween.start();
         textPanelUpTween.onComplete(function () {
           // rotate panel into view and bring it a little forward
@@ -322,7 +331,7 @@ function initHeadingMesh() {
         }
     headingMesh = new THREE.Mesh(geometry, material2);
     headingMesh.position.y = 20;
-    headingMesh.position.x = 35;
+    headingMesh.position.x = 25;
     headingMesh.scale.set(48, 48, 48);
     scene.add(headingMesh);
   });

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Matrix</title>
+    <style>
+body {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+}
+#main-canvas {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+}
+    </style>
+</head>
+<body>
+
+<canvas id="main-canvas" tabindex="1"></canvas>
+
+<script src="client-opt.js" type="text/javascript"></script>
+
+<script>
+    ui.ClientMain().main();
+    document.getElementById("main-canvas").focus();
+</script>
+</body>
+</html>
